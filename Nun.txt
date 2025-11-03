@@ -1,0 +1,694 @@
+--[ INÍCIO: Corrigido o erro de sintaxe e inicialização ]--
+repeat
+    wait()
+until game.IsLoaded and (game.Players.LocalPlayer or game.Players.PlayerAdded:Wait()) and
+    (game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait())
+
+-- Configuração Padrão de Hop (Tempo de espera entre servidores)
+getgenv().HopTime = getgenv().HopTime or 120 -- Padrão de 2 minutos (120s)
+
+-- Declaração das instâncias da UI (Usando nomes mais claros e corrigindo a declaração "l")
+local ScreenGui_Main = Instance.new("ScreenGui")
+local Frame_Chest = Instance.new("Frame")
+local Corner = Instance.new("UICorner")
+local Frame_Inner = Instance.new("Frame")
+local MinimizeButton = Instance.new("ImageButton")
+local Logo = Instance.new("ImageLabel")
+local Avatar = Instance.new("ImageLabel")
+local SaveSettingsButton = Instance.new("TextButton") -- h
+local DiscordButton = Instance.new("TextButton")    -- i
+local NightMysticLabel = Instance.new("TextLabel")    -- j
+local FPSLabel = Instance.new("TextLabel")           -- k
+local AutoFarmToggle = true -- Usando um nome claro para o toggle
+local MinimapButton = Instance.new("ImageButton") -- m
+
+-- NOVOS ELEMENTOS DA UI PARA O HOP TIME
+local hopTimeLabel = Instance.new("TextLabel")
+local hopTimeInput = Instance.new("TextBox")
+
+-- Função Anti-AFK (agora usando a nova variável AutoFarmToggle)
+game.Players.LocalPlayer.Idled:connect(
+    function()
+        while wait(3) do
+            if AutoFarmToggle then
+                game.VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+                wait(1)
+                game.VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            end
+        end
+    end
+)
+
+-- UI do Botão Minimizar/Abrir
+local ScreenGui_Minimap = Instance.new("ScreenGui")
+ScreenGui_Minimap.Parent = game.CoreGui
+ScreenGui_Minimap.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+_G.Primary = Color3.fromRGB(43, 43, 43)
+
+MinimapButton.Parent = ScreenGui_Minimap
+MinimapButton.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
+MinimapButton.Size = UDim2.new(0, 50, 0, 50)
+MinimapButton.BackgroundColor3 = _G.Primary
+MinimapButton.ImageColor3 = Color3.fromRGB(255, 255, 255)
+MinimapButton.ImageTransparency = .1
+MinimapButton.Draggable = true
+MinimapButton.Active = true
+MinimapButton.Selectable = true
+MinimapButton.BackgroundTransparency = .1
+MinimapButton.Image = "rbxassetid://4911164158"
+MinimapButton.Visible = false
+
+local MinimapCorner = Instance.new("UICorner")
+MinimapCorner.Name = "MCNR"
+MinimapCorner.Parent = MinimapButton
+MinimapCorner.CornerRadius = UDim.new(0, 5)
+
+MinimapButton.MouseButton1Down:connect(
+    function()
+        MinimapButton:TweenSize(UDim2.new(0, 40, 0, 40), "Out", "Quad", 0.2, true)
+        wait(0.1)
+        MinimapButton:TweenSize(UDim2.new(0, 50, 0, 50), "Out", "Quad", 0.2, true)
+        ScreenGui_Main.Enabled = not ScreenGui_Main.Enabled
+        MinimapButton.Visible = false
+    end
+)
+
+-- Limpeza de GUIs antigas (importante para evitar crashes)
+do
+    if game:GetService("CoreGui"):FindFirstChild("ScreenGui_Chest") then
+       game:GetService("CoreGui").ScreenGui_Chest:Destroy()
+        game:GetService("CoreGui").ScreenGui:Destroy()
+    end
+end
+
+-- Configuração da GUI Principal
+ScreenGui_Main.Name = "ScreenGui_Chest"
+ScreenGui_Main.Parent = game.CoreGui
+
+Frame_Chest.Name = "Frame_Chest"
+Frame_Chest.Parent = ScreenGui_Main
+Frame_Chest.BackgroundColor3 = Color3.fromRGB(43, 43, 43)
+Frame_Chest.BackgroundTransparency = 0.500
+Frame_Chest.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Frame_Chest.BorderSizePixel = 0
+Frame_Chest.Draggable = true
+Frame_Chest.Active = true
+Frame_Chest.Selectable = true
+Frame_Chest.Position = UDim2.new(0.297761381, 0, 0.278439432, 0)
+Frame_Chest.Size = UDim2.new(0, 281, 0, 164)
+
+Corner.Parent = Frame_Chest
+
+Frame_Inner.Name = "Frame1_Chest"
+Frame_Inner.Parent = Frame_Chest
+Frame_Inner.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
+Frame_Inner.BackgroundTransparency = 1.000
+Frame_Inner.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Frame_Inner.BorderSizePixel = 0
+Frame_Inner.Position = UDim2.new(0.0246521216, 0, 0.0482814126, 0)
+Frame_Inner.Size = UDim2.new(0, 266, 0, 147)
+
+MinimizeButton.Name = "Minimize"
+MinimizeButton.Parent = Frame_Chest
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.BackgroundTransparency = 1.000
+MinimizeButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+MinimizeButton.BorderSizePixel = 0
+MinimizeButton.Position = UDim2.new(0.87502408, 0, 0.0182926822, 0)
+MinimizeButton.Size = UDim2.new(0, 19, 0, 26)
+MinimizeButton.Image = "http://www.roblox.com/asset/?id=15511995461"
+MinimizeButton.MouseButton1Down:connect(
+    function()
+        ScreenGui_Main.Enabled = not ScreenGui_Main.Enabled
+        MinimapButton.Visible = true
+    end
+)
+
+Logo.Name = "Logo"
+Logo.Parent = Frame_Chest
+Logo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Logo.BackgroundTransparency = 1.000
+Logo.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Logo.BorderSizePixel = 0
+Logo.Position = UDim2.new(0.0246521216, 0, 0.0482814126, 0)
+Logo.Size = UDim2.new(0, 46, 0, 36)
+Logo.Image = "rbxassetid://16601446273"
+Logo.ImageTransparency = 1.000
+
+Avatar.Name = "Avatar"
+Avatar.Parent = Frame_Chest
+Avatar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Avatar.BackgroundTransparency = 1.000
+Avatar.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Avatar.BorderSizePixel = 0
+Avatar.Position = UDim2.new(0.0462633446, 0, 0.176829264, 0)
+Avatar.Size = UDim2.new(0, 90, 0, 100)
+Avatar.Image = game.Players:GetUserThumbnailAsync(
+    game.Players.LocalPlayer.UserId,
+    Enum.ThumbnailType.AvatarThumbnail,
+    Enum.ThumbnailSize.Size420x420
+)
+
+-- NOVO: Label para o Hop Time
+hopTimeLabel.Name = "HopTimeLabel"
+hopTimeLabel.Parent = Frame_Chest
+hopTimeLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+hopTimeLabel.BackgroundTransparency = 1.000
+hopTimeLabel.Position = UDim2.new(0.478, 0, 0.56, 0)
+hopTimeLabel.Size = UDim2.new(0, 70, 0, 20)
+hopTimeLabel.Font = Enum.Font.SourceSans
+hopTimeLabel.Text = "Hop Time (s):"
+hopTimeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+hopTimeLabel.TextSize = 14.000
+hopTimeLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- NOVO: Input (TextBox) para o Hop Time
+hopTimeInput.Name = "HopTimeInput"
+hopTimeInput.Parent = Frame_Chest
+hopTimeInput.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+hopTimeInput.BackgroundTransparency = 0.100
+hopTimeInput.BorderColor3 = Color3.fromRGB(0, 0, 0)
+hopTimeInput.BorderSizePixel = 0
+hopTimeInput.Position = UDim2.new(0.71, 0, 0.56, 0)
+hopTimeInput.Size = UDim2.new(0, 40, 0, 20)
+hopTimeInput.Font = Enum.Font.SourceSansBold
+hopTimeInput.Text = tostring(getgenv().HopTime) -- Carrega o valor salvo (120 padrão)
+hopTimeInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+hopTimeInput.TextSize = 14.000
+hopTimeInput.ClearTextOnFocus = false
+
+-- BOTÃO 'h' AGORA É "Save settings"
+SaveSettingsButton.Name = "SaveSettingsButton"
+SaveSettingsButton.Parent = Frame_Chest
+SaveSettingsButton.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+SaveSettingsButton.BackgroundTransparency = 0.100
+SaveSettingsButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+SaveSettingsButton.BorderSizePixel = 0
+SaveSettingsButton.Position = UDim2.new(0.478776932, 0, 0.691130638, 0)
+SaveSettingsButton.Size = UDim2.new(0, 121, 0, 28)
+SaveSettingsButton.Font = Enum.Font.SourceSansBold
+SaveSettingsButton.Text = "Save settings"
+SaveSettingsButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SaveSettingsButton.TextSize = 14.000
+
+-- FUNÇÃO DE SALVAR CONFIGURAÇÕES
+SaveSettingsButton.MouseButton1Down:connect(function()
+    local tempo = tonumber(hopTimeInput.Text)
+    if tempo and tempo >= 10 then -- Validação: Mínimo 10 segundos para evitar spam de hop
+        getgenv().HopTime = tempo
+        hopTimeInput.Text = tostring(tempo) -- Atualiza a caixa de texto para o valor salvo
+        SaveSettingsButton.Text = "Saved! ("..tempo.."s)"
+        task.wait(1.5)
+        SaveSettingsButton.Text = "Save settings"
+    else
+        SaveSettingsButton.Text = "Invalid Time (Min 10s)!"
+        task.wait(1.5)
+        SaveSettingsButton.Text = "Save settings"
+    end
+end)
+
+-- Botão Discord (i)
+DiscordButton.Name = "Discord"
+DiscordButton.Parent = Frame_Chest
+DiscordButton.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+DiscordButton.BackgroundTransparency = 0.100
+DiscordButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+DiscordButton.BorderSizePixel = 0
+DiscordButton.Position = UDim2.new(0.4775801, 0, 0.431707233, 0)
+DiscordButton.Size = UDim2.new(0, 121, 0, 28)
+DiscordButton.Font = Enum.Font.SourceSansBold
+DiscordButton.Text = "Join Discord"
+DiscordButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+DiscordButton.TextSize = 14.000
+DiscordButton.MouseButton1Down:connect(
+    function()
+        setclipboard("https://discord.gg/sEdbNRtcFe")
+        DiscordButton.Text = "Copyed Link Night Mystic"
+        task.wait(.25)
+        DiscordButton.Text = "Join Discord"
+    end
+)
+
+NightMysticLabel.Name = "Night Mystic"
+NightMysticLabel.Parent = Frame_Chest
+NightMysticLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+NightMysticLabel.BackgroundTransparency = 1.000
+NightMysticLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+NightMysticLabel.BorderSizePixel = 0
+NightMysticLabel.Position = UDim2.new(0.0790036023, 0, -0.00593120279, 0)
+NightMysticLabel.Size = UDim2.new(0, 65, 0, 35)
+NightMysticLabel.Font = Enum.Font.SourceSansBold
+NightMysticLabel.Text = "Night Mystic 🩸"
+NightMysticLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+NightMysticLabel.TextSize = 14.000
+
+FPSLabel.Name = "FPS"
+FPSLabel.Parent = Frame_Chest
+FPSLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+FPSLabel.BackgroundTransparency = 1.000
+FPSLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FPSLabel.BorderSizePixel = 0
+FPSLabel.Position = UDim2.new(0.392720729, 0, 0.116020016, 0)
+FPSLabel.Size = UDim2.new(0, 65, 0, 27)
+FPSLabel.Font = Enum.Font.SourceSansBold
+FPSLabel.Text = "FPS: "
+FPSLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+FPSLabel.TextSize = 14.000
+
+function UpdateFPS()
+    local a = workspace:GetRealPhysicsFPS()
+    FPSLabel.Text = "FPS: " .. a
+end
+
+spawn(
+    function()
+        while true do
+            task.wait(.1)
+            UpdateFPS()
+        end
+    end
+)
+
+--[ ... CÓDIGO ESP E AUTO-FARM AQUI (MANTIDO O ORIGINAL) ... ]--
+
+--------------------------------------------------
+-- INÍCIO DO CÓDIGO DO FRUIT ESP ADICIONADO AQUI --
+--------------------------------------------------
+
+-- Cria a GUI principal do ESP (Se o script principal já não tiver uma)
+local ScreenGui_ESP = Instance.new("ScreenGui")
+ScreenGui_ESP.Parent = game:GetService("CoreGui")
+ScreenGui_ESP.Name = "FruitESP_GUI"
+
+-- Função para criar o ESP para cada fruta
+local function criarESP(fruit)
+    if fruit:FindFirstChild("Handle") then
+        local billboard = Instance.new("BillboardGui")
+        billboard.Parent = fruit.Handle
+        billboard.Adornee = fruit.Handle
+        billboard.Size = UDim2.new(0, 100, 0, 50)
+        billboard.AlwaysOnTop = true
+
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Parent = billboard
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.BackgroundTransparency = 1
+        textLabel.TextColor3 = Color3.fromRGB(170, 0, 255) -- Roxo neon
+        textLabel.TextStrokeTransparency = 0
+        textLabel.TextScaled = true
+        textLabel.Font = Enum.Font.GothamBold
+        textLabel.Text = fruit.Name
+
+        -- Atualiza constantemente enquanto a fruta existir
+        -- Este spawn monitora se a fruta ainda existe.
+        spawn(function()
+            while fruit.Parent do
+                task.wait(0.1)
+            end
+            -- Remove o ESP quando a fruta for coletada
+            billboard:Destroy()
+        end)
+    end
+end
+
+-- Função para verificar novas frutas no mapa
+local function verificarFrutas()
+    for _, fruit in pairs(workspace:GetChildren()) do
+        -- Verifica se o nome contém "Fruit" e se o ESP já foi adicionado
+        if fruit.Name:match("Fruit") and not fruit:GetAttribute("ESP_Added") then
+            -- Adiciona um atributo para evitar que o ESP seja criado duas vezes
+            fruit:SetAttribute("ESP_Added", true)
+            criarESP(fruit)
+        end
+    end
+end
+
+-- Loop para atualizar o ESP constantemente
+-- Este spawn executa a verificação de frutas em um loop separado
+spawn(function()
+    while true do
+        verificarFrutas()
+        task.wait(1)
+    end
+end)
+
+----------------------------------------------
+-- FIM DO CÓDIGO DO FRUIT ESP ADICIONADO AQUI --
+----------------------------------------------
+
+if Ran then
+    return
+else
+    getgenv().Ran = true
+end
+if game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("Main", 9e9):FindFirstChild("ChooseTeam") then
+    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", "Pirates")
+    task.wait(3)
+end
+local a = game.Players.LocalPlayer
+local b = a.Character
+local c = game.TweenService
+local d = Instance.new("BodyVelocity")
+d.MaxForce = Vector3.new(1 / 0, 1 / 0, 1 / 0)
+d.Velocity = Vector3.new()
+d.Name = "bV"
+local e = Instance.new("BodyAngularVelocity")
+e.AngularVelocity = Vector3.new()
+e.MaxTorque = Vector3.new(1 / 0, 1 / 0, 1 / 0)
+e.Name = "bAV"
+for f, f in next, workspace:GetChildren() do
+    if f.Name:find("Fruit") and (f:IsA("Tool") or f:IsA("Model")) then
+        repeat
+            local d = d:Clone()
+            d.Parent = b.HumanoidRootPart
+            local e = e:Clone()
+            e.Parent = b.HumanoidRootPart
+            local a =
+                c:Create(
+                b.HumanoidRootPart,
+                TweenInfo.new((a:DistanceFromCharacter(f.Handle.Position) - 
+150) / 300, Enum.EasingStyle.Linear),
+                {CFrame = f.Handle.CFrame + Vector3.new(0, f.Handle.Size.Y, 0)}
+            )
+            a:Play()
+            a.Completed:Wait()
+            b.HumanoidRootPart.CFrame = f.Handle.CFrame
+            d:Destroy()
+            e:Destroy()
+ 
+            task.wait(1)
+        until f.Parent ~= workspace
+        task.wait(1)
+        local a =
+            b:FindFirstChildOfClass("Tool") and b:FindFirstChildOfClass("Tool").Name:find("Fruit") and
+            b:FindFirstChildOfClass("Tool") or
+            (function()
+                for a, a in a.Backpack:GetChildren() do
+                    if a.Name:find("Fruit") then
+                        return a
+                    end
+                end
+            end)()
+    
+        print(a)
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(
+            "StoreFruit",
+            a:GetAttribute("OriginalName"),
+            a
+        )
+    end
+end
+for a, a in pairs(game:GetService("Workspace"):GetChildren()) do
+    if a:IsA("Tool") and string.find(a.Name, "Fruit") then
+        NameFruit = a.Name
+    end
+end
+print(NameFruit)
+spawn(
+    function()
+        pcall(
+            function()
+                while task.wait(.1) do
+                    if _G.AutoStoreFruit then
+                        for a, a in pairs(NameFruit) do
+                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", a)
+                        end
+                    end
+                end
+            end
+        )
+    end
+)
+
+--[ ... CÓDIGO DE TELEPORTE (MANTIDO O ORIGINAL) ... ]--
+
+local a = game.JobId
+repeat
+    task.spawn(
+        pcall,
+        function()
+            Time = 0.1
+            repeat
+                task.wait()
+            until game:IsLoaded()
+            task.wait(Time)
+            local a = game.PlaceId
+            local b = {}
+            local c = ""
+            local d = os.date("!*t").hour
+            local e = false
+            function TPReturner()
+                local e
+                if c == "" then
+                    e =
+                        game.HttpService:JSONDecode(
+                        game:HttpGet(
+                            "https://games.roblox.com/v1/games/" .. a .. "/servers/Public?sortOrder=Asc&limit=100"
+                        )
+                    )
+                else
+                    e =
+                        game.HttpService:JSONDecode(
+                        game:HttpGet(
+                            "https://games.roblox.com/v1/games/" ..
+                                a .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. c
+                        )
+                    )
+                end
+                local f = ""
+                if e.nextPageCursor and e.nextPageCursor ~= "null" and e.nextPageCursor ~= nil then
+                    c = e.nextPageCursor
+                end
+                local c = 0
+                for e, e in pairs(e.data) do
+                    local g = true
+                    f = tostring(e.id)
+                    if tonumber(e.maxPlayers) > tonumber(e.playing) then
+                        for a, a in pairs(b) do
+                            if c ~= 0 then
+                                if f == tostring(a) then
+                                    g = false
+                                end
+                            else
+                                if tonumber(d) ~= tonumber(a) then
+                                    local a =
+                                        pcall(
+                                            function()
+                                                delfile("NotSameServers.json")
+                                                b = {}
+                                                table.insert(b, d)
+                                            end
+                                        )
+                                end
+                            end
+                            c = c + 1
+                        end
+                        if g == true then
+                            table.insert(b, f)
+                            task.wait()
+                            pcall(
+                                function()
+                                    writefile("NotSameServers.json", game:GetService("HttpService"):JSONEncode(b))
+                                    task.wait()
+                                    game:GetService("TeleportService"):TeleportToPlaceInstance(
+                                        a,
+                                        f,
+                                        game.Players.LocalPlayer
+                                    )
+                                end
+                            )
+                            task.wait(4)
+                        end
+                    end
+                end
+            end
+            function Teleport()
+                while task.wait() do
+                    pcall(
+                        function()
+                            TPReturner()
+                            if c ~= "" then
+                                TPReturner()
+                            end
+                        end
+                    )
+                end
+            end
+            Teleport()
+        end
+    )
+    task.wait()
+until game.JobId ~= a
+
+--[ ... CÓDIGO DO WEBHOOK (MANTIDO O ORIGINAL) ... ]--
+
+-- Evita execução múltipla
+if getgenv().WebhookJaExecutado then
+    warn("⚠️ O webhook já foi executado antes. Ignorando nova execução.")
+    return
+else
+    getgenv().WebhookJaExecutado = true
+end
+
+-- Configuração do webhook
+local webhook = getgenv().FruitWebhook or ""
+if webhook == "" then
+    warn("Nenhum webhook configurado! Defina getgenv().FruitWebhook antes de executar o script.")
+    -- Não retorna, para que a lógica de hop possa continuar a funcionar
+end
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local plr = Players.LocalPlayer
+local userId = plr.UserId
+
+-- avatar do player
+local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId="..userId.."&width=420&height=420&format=png"
+-- imagem fixa do bot (sua imagem roxa)
+local botIcon = "https://i.imgur.com/Nk1a89M.jpeg"
+-- link do perfil do jogador
+local profileUrl = "https://www.roblox.com/users/"..userId.."/profile"
+
+local comm = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
+
+local function sendWebhook(fruta)
+    local data = {
+        ["username"] = "Night Mystic",
+        ["avatar_url"] = botIcon,
+        ["embeds"] = {{
+            ["title"] = "Fruit finder ---  [Join the Night Mystic server](<https://discord.gg/sEdbNRtcFe>)",
+            ["description"] = "stored a fruit in inventory",
+            ["color"] = 139,
+            ["thumbnail"] = {["url"] = avatarUrl},
+            ["fields"] = {
+                {["name"] = "player", ["value"] = "["..plr.Name.."]("..profileUrl..")", ["inline"] = true},
+                {["name"] = "🍎 Fruit", ["value"] = fruta or "Desconhecida", ["inline"] = true},
+                {["name"] = "🌍 PlaceId", ["value"] = tostring(game.PlaceId), ["inline"] = true},
+            },
+            ["footer"] = {["text"] = "Horário: " .. os.date("%d/%m/%Y %H:%M:%S"), ["icon_url"] = botIcon}
+        }}
+    }
+
+    local req = http_request or request or syn and syn.request
+    if req then
+        req({
+            Url = webhook,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = HttpService:JSONEncode(data)
+        })
+        print("[✅] Webhook enviado com sucesso!")
+    else
+        warn("Executor não suporta http_request")
+    end
+end
+
+-- hook corrigido
+local old
+old = hookmetamethod(game, "__namecall", function(self, ...)
+    local args = {...}
+    local method = getnamecallmethod()
+    
+    if self == comm and method == "InvokeServer" and args[1] == "StoreFruit" then
+        local result = old(self, ...) -- pega o retorno do servidor
+        if result == true or result == "Sucess" then
+            sendWebhook(args[2]) -- só envia se armazenou mesmo
+        end
+        return result
+    end
+    
+    return old(self, ...)
+end)
+
+print("by araujo7xp")
+
+if typeof(StartFruitFinder) == "function" then
+    StartFruitFinder()
+end
+
+
+
+
+
+--------------------------------------------------
+-- SISTEMA DE HOP INTELIGENTE (CORRIGIDO) by araujo7xp --
+--------------------------------------------------
+
+repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game.Players.LocalPlayer
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+
+local function ExisteFruta()
+    for _, v in pairs(workspace:GetChildren()) do
+        if v:IsA("Tool") and string.find(v.Name, "Fruit") then
+            return true
+        end
+    end
+    return false
+end
+
+local function EsperarFrutaColetada()
+    repeat task.wait(2) until not ExisteFruta()
+end
+
+local function TrocarServidor()
+    local HttpService = game:GetService("HttpService")
+    local placeId = game.PlaceId
+    local cursor = ""
+    local function getServers()
+        local ok, result = pcall(function()
+            local url = "https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"
+            if cursor ~= "" then url = url.."&cursor="..cursor end
+            return HttpService:JSONDecode(game:HttpGet(url))
+        end)
+        if ok and result and result.data then
+            for _, v in ipairs(result.data) do
+                if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                    TeleportService:TeleportToPlaceInstance(placeId, v.id, Players.LocalPlayer)
+                    task.wait(6)
+                    return true
+                end
+            end
+            if result.nextPageCursor then
+                cursor = result.nextPageCursor
+                return getServers()
+            end
+        end
+        return false
+    end
+    getServers()
+end
+
+warn("[🔍] Procurando frutas neste servidor...")
+
+-- AGORA USA O TEMPO SALVO NA INTERFACE OU O PADRÃO DE 120 SEGUNDOS
+local tempoLimite = getgenv().HopTime or 120 
+local inicio = tick()
+local frutaEncontrada = false
+
+while tick() - inicio < tempoLimite do
+    if ExisteFruta() then
+        frutaEncontrada = true
+        warn("[🍏] Fruta detectada! Aguardando coleta...")
+        EsperarFrutaColetada()
+        warn("[✅] Fruta coletada ou sumida. Trocando de servidor...")
+        TrocarServidor()
+        return
+    end
+    task.wait(1)
+end
+
+if not frutaEncontrada then
+    -- A MENSAGEM AGORA REFLETE O TEMPO CORRETO DO HOP
+    warn("[🍎] Nenhuma fruta detectada após "..tempoLimite.." segundos. Trocando de servidor...")
+    TrocarServidor()
+end
+
+print("by araujo7xp (Hop Inteligente corrigido)")
+
+--------------------------------------------------
+-- FIM DO SISTEMA DE HOP INTELIGENTE (CORRIGIDO) --
+--------------------------------------------------
